@@ -109,9 +109,7 @@ export const getStory = async (db, path) => {
     const story = getHitsAsStory(hits)
     return story
   } catch (error) {
-    return {
-      story: false
-    }
+    return false
   }
 }
 
