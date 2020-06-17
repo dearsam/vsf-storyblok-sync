@@ -14,10 +14,11 @@ export default {
   mixins: [StoryblokMixin],
   metaInfo () {
     if (this.story) {
+      const description = get(this.story, 'content.seo.description', get(currentStoreView(), 'seo.description'))
       return {
         title: get(this.story, 'content.seo.title', this.story.name),
         meta: [
-          { description: get(this.story, 'content.seo.description') ? { vmid: 'description', name: 'description', content: this.story.content.seo.description } : {} }
+          { vmid: 'description', name: 'description', content: description }
         ],
         link: [
           {
