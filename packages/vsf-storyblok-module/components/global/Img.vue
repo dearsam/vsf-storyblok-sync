@@ -5,7 +5,7 @@
   <div v-else-if="div" :style="{ backgroundImage: `url('${image}')` }">
     <slot />
   </div>
-  <img v-else-if="lazy" v-lazy="image" :src="placeholder">
+  <img v-else-if="lazy" v-lazy="image" :src="placeholder" :width="width" :height="height">
   <img v-else :src="image">
 </template>
 
