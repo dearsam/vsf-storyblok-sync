@@ -5,8 +5,21 @@
   <div v-else-if="div" :style="{ backgroundImage: `url('${image}')` }">
     <slot />
   </div>
-  <img v-else-if="lazy" v-lazy="image" :src="placeholderSrc" :width="intrinsicWidth" :height="intrinsicHeight">
-  <img v-else :src="image" :width="intrinsicWidth" :height="intrinsicHeight">
+  <img
+    v-else-if="lazy"
+    class="lazyload"
+    :src="image"
+    :srcset="placeholderSrc"
+    :data-srcset="dataSrcSet"
+    :width="intrinsicWidth"
+    :height="intrinsicHeight"
+  >
+  <img
+    v-else
+    :src="image"
+    :width="intrinsicWidth"
+    :height="intrinsicHeight"
+  >
 </template>
 
 <script>
@@ -46,6 +59,13 @@ export default {
       }
       return 'https://img2.storyblok.com' + mod + resource
     },
+    dataSrcSet () {
+      return [
+        `${this.image} 1x`,
+        `${this.image} 2x`,
+        `${this.image} 3x`
+      ].join(',')
+    },
     intrinsicWidth () {
       return this.intrinsicSize?.width
     },
@@ -64,12 +84,13 @@ export default {
       }
     },
     placeholderSrc () {
-      return this.placeholder || `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.intrinsicWidth} ${this.intrinsicHeight}"%3E%3C/svg%3E`
+      return this.placeholder || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='// `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.intrinsicWidth} ${this.intrinsicHeight}"%3E%3C/svg%3E`
     }
   },
   props: {
     placeholder: {
-      type: String
+      type: String,
+      default: ''
     },
     detectWebp: {
       type: Boolean,
