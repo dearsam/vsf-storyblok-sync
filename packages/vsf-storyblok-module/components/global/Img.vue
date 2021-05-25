@@ -1,12 +1,44 @@
 <template>
-  <div v-if="div && lazy" v-lazy:background-image="image" :style="{ backgroundImage: `url('${placeholder}')` }">
+  <div v-if="div && lazy" class="bg">
+    <img
+      class="lazyload"
+      :src="imageScaled(1)"
+      :srcset="placeholderSrc"
+      :data-srcset="srcSet"
+      :width="intrinsicWidth"
+      :height="intrinsicHeight"
+    >
     <slot />
   </div>
-  <div v-else-if="div" :style="{ backgroundImage: `url('${image}')` }">
-    <slot />
+  <div v-else-if="div" class="bg">
+    <img
+      :src="imageScaled(1)"
+      :srcset="srcSet"
+      :sizes="sizes"
+      :width="intrinsicWidth"
+      :height="intrinsicHeight"
+    >
+    <div class="slot">
+      <slot />
+    </div>
   </div>
-  <img v-else-if="lazy" v-lazy="image" :src="placeholderSrc" :width="intrinsicWidth" :height="intrinsicHeight">
-  <img v-else :src="image" :width="intrinsicWidth" :height="intrinsicHeight">
+  <img
+    v-else-if="lazy"
+    class="lazyload"
+    :src="imageScaled(1)"
+    :srcset="placeholderSrc"
+    :data-srcset="srcSet"
+    :width="intrinsicWidth"
+    :height="intrinsicHeight"
+  >
+  <img
+    v-else
+    :src="imageScaled(1)"
+    :srcset="srcSet"
+    :sizes="sizes"
+    :width="intrinsicWidth"
+    :height="intrinsicHeight"
+  >
 </template>
 
 <script>
@@ -16,60 +48,10 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'StoryblokImage',
-  computed: {
-    ...mapGetters({
-      supportsWebp: 'storyblok/supportsWebp'
-    }),
-    computedFilters () {
-      if (this.detectWebp && this.supportsWebp) {
-        return [...this.filters, 'format(webp)']
-      }
-      return this.filters
-    },
-    image () {
-      if (!this.src.includes('//a.storyblok.com')) {
-        return this.src
-      }
-      const [, resource] = this.src.split('//a.storyblok.com')
-      let mod = ''
-      if (this.height > 0 || this.width > 0) {
-        if (this.fitIn) {
-          mod += '/fit-in'
-        }
-        mod += `/${this.width}x${this.height}`
-        if (this.smart) {
-          mod += '/smart'
-        }
-      }
-      if (this.computedFilters.length) {
-        mod += '/filters:' + this.computedFilters.join(':')
-      }
-      return 'https://img2.storyblok.com' + mod + resource
-    },
-    intrinsicWidth () {
-      return this.intrinsicSize?.width
-    },
-    intrinsicHeight () {
-      return this.intrinsicSize?.height
-    },
-    intrinsicSize () {
-      try {
-        const widthHeight = this.image.match(/\d+x\d+/g)[0].split('x')
-        return {
-          width: widthHeight[0],
-          height: widthHeight[1]
-        }
-      } catch (e) {
-        return undefined
-      }
-    },
-    placeholderSrc () {
-      return this.placeholder || `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.intrinsicWidth} ${this.intrinsicHeight}"%3E%3C/svg%3E`
-    }
-  },
   props: {
     placeholder: {
-      type: String
+      type: String,
+      default: ''
     },
     detectWebp: {
       type: Boolean,
@@ -106,6 +88,90 @@ export default {
     filters: {
       type: Array,
       default: () => []
+    },
+    sizes: {
+      type: Array,
+      default: () => []
+    }
+  },
+  computed: {
+    ...mapGetters({
+      supportsWebp: 'storyblok/supportsWebp'
+    }),
+    computedFilters () {
+      if (this.detectWebp && this.supportsWebp) {
+        return [...this.filters, 'format(webp)']
+      }
+      return this.filters
+    },
+    image () {
+      if (!this.src.includes('//a.storyblok.com')) {
+        return this.src
+      }
+      const [, resource] = this.src.split('//a.storyblok.com')
+      let mod = ''
+      if (this.height > 0 || this.width > 0) {
+        if (this.fitIn) {
+          mod += '/fit-in'
+        }
+        mod += `/${this.width}x${this.height}`
+        if (this.smart) {
+          mod += '/smart'
+        }
+      }
+      if (this.computedFilters.length) {
+        mod += '/filters:' + this.computedFilters.join(':')
+      }
+      return 'https://img2.storyblok.com' + mod + resource
+    },
+    srcSet () {
+      return [
+        `${this.imageScaled(1 / 3)} ${this.intrinsicWidth / 3}w`,
+        `${this.imageScaled(1 / 2)} ${this.intrinsicWidth / 2}w`,
+        `${this.imageScaled(1)} ${this.intrinsicWidth}w`
+      ].join(',')
+    },
+    intrinsicWidth () {
+      return this.intrinsicSize?.width
+    },
+    intrinsicHeight () {
+      return this.intrinsicSize?.height
+    },
+    intrinsicSize () {
+      try {
+        const widthHeight = this.image.match(/\d+x\d+/g)[0].split('x')
+        return {
+          width: widthHeight[0],
+          height: widthHeight[1]
+        }
+      } catch (e) {
+        return undefined
+      }
+    },
+    placeholderSrc () {
+      return this.placeholder || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' // `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.intrinsicWidth} ${this.intrinsicHeight}"%3E%3C/svg%3E`
+    }
+  },
+  methods: {
+    imageScaled (factor) {
+      if (!this.src.includes('//a.storyblok.com')) {
+        return this.src
+      }
+      const [, resource] = this.src.split('//a.storyblok.com')
+      let mod = ''
+      if (factor !== 1) {
+        if (this.fitIn) {
+          mod += '/fit-in'
+        }
+        mod += `/${Math.round(this.intrinsicWidth * factor)}x${Math.round(this.intrinsicHeight * factor)}`
+        if (this.smart) {
+          mod += '/smart'
+        }
+      }
+      if (this.computedFilters.length) {
+        mod += '/filters:' + this.computedFilters.join(':')
+      }
+      return 'https://img2.storyblok.com' + mod + resource
     }
   }
 }
