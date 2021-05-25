@@ -181,4 +181,22 @@ export default {
   img {
     height: auto;
   }
+  .bg {
+    overflow: hidden;
+    position: relative;
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+      top: 50% !important;
+      transform: translate(0,-50%);
+      mix-blend-mode: multiply;
+    }
+  }
+  .slot{
+    position: relative;
+  }
 </style>
