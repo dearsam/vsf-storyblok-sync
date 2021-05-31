@@ -199,6 +199,7 @@ export default {
 <style lang="scss" scoped>
   img {
     height: auto;
+    width: 100%;
   }
   .bg {
     overflow: hidden;
