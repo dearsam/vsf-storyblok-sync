@@ -1,14 +1,19 @@
 <template>
   <div v-if="div && lazy" class="bg">
-    <img
-      class="lazyload"
-      :src="imageScaled(1)"
-      :srcset="placeholderSrc"
-      :data-srcset="srcSet"
-      :width="intrinsicWidth"
-      :height="intrinsicHeight"
-      decoding="async"
-    >
+    <picture>
+      <source type="image/webp" :data-srcset="srcSetWebp" :sizes="sizes">
+      <img
+        class="lazyload"
+        :src="imageScaled(1)"
+        :srcset="placeholderSrc"
+        :data-srcset="srcSet"
+        :sizes="sizes"
+        :width="intrinsicWidth"
+        :height="intrinsicHeight"
+        :alt="alt"
+        decoding="async"
+      >
+    </picture>
     <slot />
   </div>
   <div v-else-if="div" class="bg">
@@ -20,6 +25,7 @@
         :sizes="sizes"
         :width="intrinsicWidth"
         :height="intrinsicHeight"
+        :alt="alt"
         decoding="async"
       >
     </picture>
@@ -37,6 +43,7 @@
       :sizes="sizes"
       :width="intrinsicWidth"
       :height="intrinsicHeight"
+      :alt="alt"
       decoding="async"
     >
   </picture>
@@ -48,6 +55,7 @@
       :sizes="sizes"
       :width="intrinsicWidth"
       :height="intrinsicHeight"
+      :alt="alt"
       decoding="async"
     >
   </picture>
@@ -97,6 +105,10 @@ export default {
     sizes: {
       type: Array,
       default: () => []
+    },
+    alt: {
+      type: String,
+      default: ''
     }
   },
   computed: {
