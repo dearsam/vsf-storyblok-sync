@@ -7,38 +7,50 @@
       :data-srcset="srcSet"
       :width="intrinsicWidth"
       :height="intrinsicHeight"
+      decoding="async"
     >
     <slot />
   </div>
   <div v-else-if="div" class="bg">
+    <picture>
+      <source type="image/webp" :srcset="srcSetWebp" :sizes="sizes">
+      <img
+        :src="imageScaled(1)"
+        :srcset="srcSet"
+        :sizes="sizes"
+        :width="intrinsicWidth"
+        :height="intrinsicHeight"
+        decoding="async"
+      >
+    </picture>
+    <div class="slot">
+      <slot />
+    </div>
+  </div>
+  <picture v-else-if="lazy">
+    <source type="image/webp" :data-srcset="srcSetWebp" :sizes="sizes">
+    <img
+      class="lazyload"
+      :src="imageScaled(1)"
+      :srcset="placeholderSrc"
+      :data-srcset="srcSet"
+      :sizes="sizes"
+      :width="intrinsicWidth"
+      :height="intrinsicHeight"
+      decoding="async"
+    >
+  </picture>
+  <picture v-else>
+    <source type="image/webp" :srcset="srcSetWebp" :sizes="sizes">
     <img
       :src="imageScaled(1)"
       :srcset="srcSet"
       :sizes="sizes"
       :width="intrinsicWidth"
       :height="intrinsicHeight"
+      decoding="async"
     >
-    <div class="slot">
-      <slot />
-    </div>
-  </div>
-  <img
-    v-else-if="lazy"
-    class="lazyload"
-    :src="imageScaled(1)"
-    :srcset="placeholderSrc"
-    :data-srcset="srcSet"
-    :width="intrinsicWidth"
-    :height="intrinsicHeight"
-  >
-  <img
-    v-else
-    :src="imageScaled(1)"
-    :srcset="srcSet"
-    :sizes="sizes"
-    :width="intrinsicWidth"
-    :height="intrinsicHeight"
-  >
+  </picture>
 </template>
 
 <script>
@@ -131,6 +143,13 @@ export default {
         `${this.imageScaled(1)} ${this.intrinsicWidth}w`
       ].join(',')
     },
+    srcSetWebp () {
+      return [
+        `${this.imageScaled(1 / 3, 'webp')} ${this.intrinsicWidth / 3}w`,
+        `${this.imageScaled(1 / 2, 'webp')} ${this.intrinsicWidth / 2}w`,
+        `${this.imageScaled(1, 'webp')} ${this.intrinsicWidth}w`
+      ].join(',')
+    },
     intrinsicWidth () {
       return this.intrinsicSize?.width
     },
@@ -153,7 +172,7 @@ export default {
     }
   },
   methods: {
-    imageScaled (factor) {
+    imageScaled (factor, format) {
       if (!this.src.includes('//a.storyblok.com')) {
         return this.src
       }
@@ -168,8 +187,8 @@ export default {
           mod += '/smart'
         }
       }
-      if (this.computedFilters.length) {
-        mod += '/filters:' + this.computedFilters.join(':')
+      if (format === 'webp') {
+        mod += '/filters:format(webp)'
       }
       return 'https://img2.storyblok.com' + mod + resource
     }
