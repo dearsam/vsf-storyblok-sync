@@ -81,7 +81,8 @@ export default {
   },
   props: {
     placeholder: {
-      type: String
+      type: String,
+      default: ''
     },
     height: {
       type: Number,
