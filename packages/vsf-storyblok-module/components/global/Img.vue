@@ -28,8 +28,6 @@
 </template>
 
 <script>
-import get from 'lodash-es/get'
-import config from 'config'
 
 export default {
   name: 'StoryblokImage',
@@ -84,10 +82,6 @@ export default {
   props: {
     placeholder: {
       type: String
-    },
-    detectWebp: {
-      type: Boolean,
-      default: get(config, 'storyblok.imageService.defaultWebp', true)
     },
     height: {
       type: Number,
