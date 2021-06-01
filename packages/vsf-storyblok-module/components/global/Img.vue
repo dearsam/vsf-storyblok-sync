@@ -1,12 +1,18 @@
 <template>
-  <div v-if="div && lazy" class="lazyload" :data-bg="image" :style="{ backgroundImage: `url('${placeholder}')` }">
+  <div v-if="div && lazy" class="lazyload" :data-bg="getSrc()" :style="{ backgroundImage: `url('${placeholderSrc}')` }">
     <slot />
   </div>
-  <div v-else-if="div" :style="{ backgroundImage: `url('${image}')` }">
+  <div v-else-if="div" :style="{ backgroundImage: `url('${getSrc()}')` }">
     <slot />
   </div>
-  <img v-else-if="lazy" class="lazyload" :data-src="image" :src="placeholderSrc" :width="intrinsicWidth" :height="intrinsicHeight">
-  <img v-else :src="image" :width="intrinsicWidth" :height="intrinsicHeight">
+  <picture v-else-if="lazy">
+    <source :data-srcset="getSrc('webp')" type="image/webp">
+    <img class="lazyload" :data-src="getSrc()" :src="placeholderSrc" :width="intrinsicWidth" :height="intrinsicHeight">
+  </picture>
+  <picture v-else>
+    <source :srcset="getSrc('webp')" type="image/webp">
+    <img :src="getSrc()" :width="intrinsicWidth" :height="intrinsicHeight">
+  </picture>
 </template>
 
 <script>
@@ -65,6 +71,28 @@ export default {
     },
     placeholderSrc () {
       return this.placeholder || `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.intrinsicWidth} ${this.intrinsicHeight}"%3E%3C/svg%3E`
+    }
+  },
+  methods: {
+    getSrc (format) {
+      if (!this.src.includes('//a.storyblok.com')) {
+        return this.src
+      }
+      const [, resource] = this.src.split('//a.storyblok.com')
+      let mod = ''
+      if (this.height > 0 || this.width > 0) {
+        if (this.fitIn) {
+          mod += '/fit-in'
+        }
+        mod += `/${this.width}x${this.height}`
+        if (this.smart) {
+          mod += '/smart'
+        }
+      }
+      if (format === 'webp') {
+        mod += '/filters:format(webp)'
+      }
+      return 'https://img2.storyblok.com' + mod + resource
     }
   },
   props: {
