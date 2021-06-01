@@ -18,40 +18,10 @@
 <script>
 import get from 'lodash-es/get'
 import config from 'config'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'StoryblokImage',
   computed: {
-    ...mapGetters({
-      supportsWebp: 'storyblok/supportsWebp'
-    }),
-    computedFilters () {
-      if (this.detectWebp && this.supportsWebp) {
-        return [...this.filters, 'format(webp)']
-      }
-      return this.filters
-    },
-    image () {
-      if (!this.src.includes('//a.storyblok.com')) {
-        return this.src
-      }
-      const [, resource] = this.src.split('//a.storyblok.com')
-      let mod = ''
-      if (this.height > 0 || this.width > 0) {
-        if (this.fitIn) {
-          mod += '/fit-in'
-        }
-        mod += `/${this.width}x${this.height}`
-        if (this.smart) {
-          mod += '/smart'
-        }
-      }
-      if (this.computedFilters.length) {
-        mod += '/filters:' + this.computedFilters.join(':')
-      }
-      return 'https://img2.storyblok.com' + mod + resource
-    },
     intrinsicWidth () {
       return this.intrinsicSize?.width
     },
@@ -60,7 +30,7 @@ export default {
     },
     intrinsicSize () {
       try {
-        const widthHeight = this.image.match(/\d+x\d+/g)[0].split('x')
+        const widthHeight = this.src.match(/\d+x\d+/g)[0].split('x')
         return {
           width: widthHeight[0],
           height: widthHeight[1]
