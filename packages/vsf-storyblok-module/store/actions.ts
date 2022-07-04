@@ -37,7 +37,8 @@ export const actions: ActionTree<StoryblokState, RootState> = {
     const url = `${config.storyblok.endpoint}/validate-editor/?${qs.stringify(query)}`
     const { result: { previewToken } }: any = await TaskQueue.execute({
       url,
-      silent: true
+      silent: true,
+      payload: { headers: [] }
     })
 
     commit('setPreviewToken', { previewToken })
