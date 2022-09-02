@@ -56,17 +56,19 @@ export function createBulkOperations (stories = []) {
 }
 
 export function createIndex (config) {
-  return {
-    index: 'storyblok_stories',
-    body: {
-      index: {
-        mapping: {
-          total_fields: {
-            limit: config.storyblok.fieldLimit || 1000
-          }
+  const settings = {
+    index: {
+      mapping: {
+        total_fields: {
+          limit: config.storyblok.fieldLimit || 1000
         }
       }
     }
+  }
+
+  return {
+    index: 'storyblok_stories',
+    body: parseInt(config.elasticsearch.apiVersion) < 6 ? settings : Object.assign({}, { settings: settings })
   }
 }
 
