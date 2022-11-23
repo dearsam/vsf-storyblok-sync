@@ -25,7 +25,8 @@ export default {
             rel: 'canonical',
             href: this.getCanonical()
           },
-          ...this.metaHreflangLinks()
+          ...this.metaHreflangLinks(),
+          ...(this.heroImages ? this.heroImages.map(image => ({ rel: 'preload', as: 'image', href: image })) : {})
         ]
       }
     }
@@ -33,6 +34,15 @@ export default {
   computed: {
     getCurrentStoreView () {
       return get(config.storeViews, currentStoreView().storeCode)
+    },
+    heroImages () {
+      if (!this.story.name === 'Home') return []
+      const heroBlok = this.story.content.body.find(blok => blok.component === 'HeroTwoImages')
+      const heroImages = heroBlok?.columns?.map(column => {
+        const [, resource] = column.image.split('//a.storyblok.com')
+        return 'https://img2.storyblok.com' + resource
+      })
+      return heroImages || []
     }
   },
   methods: {
