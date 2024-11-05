@@ -22,7 +22,7 @@ export default {
         const { id, fullSlug } = getStoryblokQueryParams(this.$route)
 
         const key = this.storyblokPath || id || this.formatFullSlug(fullSlug)
-        return state.stories[key] && state.stories[key].story
+        return (state.stories[key] && state.stories[key].story) || {}
       },
       isStatic () {
         return !!this.storyblok.path
@@ -79,6 +79,11 @@ export default {
       return this.$store.dispatch(`${KEY}/loadStory`, {
         fullSlug: this.storyblokPath || this.formatFullSlug(fullSlug)
       })
+    },
+    getStoryContent(component) {
+      const content = this.story && this.story.content && this.story.content[component]
+
+      return content || '';
     }
   },
   async serverPrefetch () {
