@@ -100,7 +100,9 @@ export default {
     })
   },
   async mounted () {
-    if (!this.story) {
+    const { id } = this.story;
+
+    if (!id) {
       await this.fetchStory()
     }
 
