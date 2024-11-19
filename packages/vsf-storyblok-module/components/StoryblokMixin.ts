@@ -103,7 +103,11 @@ export default {
     const { id } = this.story;
 
     if (!id) {
-      await this.fetchStory()
+      try {
+        await this.fetchStory();
+      } catch (error) {
+        console.error('Error during mounted fetchStory:', error);
+      }
     }
 
     if (this.previewToken) {
