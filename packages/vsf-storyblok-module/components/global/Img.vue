@@ -21,20 +21,21 @@ export default {
   name: 'StoryblokImage',
   computed: {
     intrinsicWidth () {
-      return this.intrinsicSize?.width
+      return this.intrinsicSize?.width || null
     },
     intrinsicHeight () {
-      return this.intrinsicSize?.height
+      return this.intrinsicSize?.height || null
     },
     intrinsicSize () {
       try {
-        const widthHeight = this.src.match(/\d+x\d+/g)[0].split('x')
+        const widthHeight = this.src.match(/\d+x\d+/g)?.[0]?.split('x') || []
+
         return {
-          width: widthHeight[0],
-          height: widthHeight[1]
+          width: parseInt(widthHeight[0]) || null,
+          height: parseInt(widthHeight[1]) || null
         }
       } catch (e) {
-        return undefined
+        return { width: null, height: null }
       }
     },
     placeholderSrc () {
